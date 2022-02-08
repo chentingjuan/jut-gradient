@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "https://chentingjuan.github.io/jut-gradient/static/css/main.3cab828a.css",
-    "main.js": "https://chentingjuan.github.io/jut-gradient/static/js/main.f036e023.js",
+    "main.js": "https://chentingjuan.github.io/jut-gradient/static/js/main.0ea0fc0f.js",
     "static/js/787.cfd8f91d.chunk.js": "https://chentingjuan.github.io/jut-gradient/static/js/787.cfd8f91d.chunk.js",
     "index.html": "https://chentingjuan.github.io/jut-gradient/index.html",
     "main.3cab828a.css.map": "https://chentingjuan.github.io/jut-gradient/static/css/main.3cab828a.css.map",
-    "main.f036e023.js.map": "https://chentingjuan.github.io/jut-gradient/static/js/main.f036e023.js.map",
+    "main.0ea0fc0f.js.map": "https://chentingjuan.github.io/jut-gradient/static/js/main.0ea0fc0f.js.map",
     "787.cfd8f91d.chunk.js.map": "https://chentingjuan.github.io/jut-gradient/static/js/787.cfd8f91d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.3cab828a.css",
-    "static/js/main.f036e023.js"
+    "static/js/main.0ea0fc0f.js"
   ]
 }
