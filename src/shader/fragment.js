@@ -61,6 +61,7 @@ varying float vDistortion;
 
 void main() {
   vec3 c_w = rgb(230., 230., 230.);   // 灰白
+  vec3 c_d = rgb(200., 200., 200.);   // 灰
   vec3 c_b = rgb(55. ,141. ,218.);    // 藍
   vec3 c_g = rgb(132. ,187. ,65.);    // 綠
   vec3 c_yg = rgb(219. ,234. ,55.);   // 黃綠
@@ -72,13 +73,15 @@ void main() {
 
   float noise_yg = snoise(vUv * 2. - u_velocity_g / 2. * u_time );
   float noise_oy = snoise(vUv * 10. - u_velocity_g / 5. * u_time );
-  // float noise_w = snoise(vUv * 1. + u_velocity_g / 2. * u_time );
+  float noise_d = snoise(vUv * 8. + u_velocity_g / 2. * u_time );
 
   vec3 color = c_w;
   color = mix(color, c_b, noise_b * u_color_depth_b);
   color = mix(color, c_yg, noise_yg * 1.);
   color = mix(color, c_g, noise_g * u_color_depth_g);
-  color = mix(color, c_oy, noise_oy * .3);
+  color = mix(color, c_oy, noise_oy * .6);
+
+  color = mix(color, c_d, noise_d * .8);
   
   color = mix(color, mix(c_b, c_g, vUv.x), vDistortion);
 
