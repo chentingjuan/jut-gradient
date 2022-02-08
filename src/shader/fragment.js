@@ -61,14 +61,17 @@ void main() {
   vec3 bg = rgb(u_bg.r, u_bg.g, u_bg.b);
   vec3 c1 = rgb(u_color1.r, u_color1.g, u_color1.b);
   vec3 c2 = rgb(u_color2.r, u_color2.g, u_color2.b);
+  vec3 c3 = rgb(230., 230. ,230.);
   vec3 bgMain = rgb(u_bgMain.r, u_bgMain.g, u_bgMain.b);
 
-  float noise1 = snoise(vUv * 10. / u_wavelength_2 + u_velocity_2 * u_time );
+  float noise1 = snoise(vUv * 10. / u_wavelength_2 + u_velocity_2 * u_time);
   float noise2 = snoise(vUv * 10. / u_wavelength_1 + u_velocity_1 * u_time);
+  float noise3 = snoise(vUv * 2. + u_velocity_1 / 2. * u_time );
 
   vec3 color = bg;
   color = mix(color, c1, noise1 * 0.2);
   color = mix(color, c2, noise2 * 1.);
+  color = mix(color, c3, noise3 * 1.);
 
   color = mix(color, mix(c1, c2, vUv.x), vDistortion);
 
