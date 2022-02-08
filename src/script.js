@@ -108,13 +108,13 @@ class Sketch {
     greenFolder.open()
     greenFolder.add(this.settings, 'velocity (G)').min(-0.5).max(0.5)
     greenFolder.add(this.settings, 'wavelength (G)').min(1).max(6)
-    greenFolder.add(this.settings, 'color depth (G)').min(0.01).max(2)
+    greenFolder.add(this.settings, 'color depth (G)').min(0.4).max(2)
 
     const blueFolder = this.gui.addFolder('----- MAIN BLUE -----')
     blueFolder.open()
     blueFolder.add(this.settings, 'velocity (B)').min(-0.5).max(0.5)
     blueFolder.add(this.settings, 'wavelength (B)').min(1).max(6)
-    blueFolder.add(this.settings, 'color depth (B)').min(0.01).max(2)
+    blueFolder.add(this.settings, 'color depth (B)').min(0.4).max(2)
   }
 
   animate = () => {
