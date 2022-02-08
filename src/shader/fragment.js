@@ -20,7 +20,7 @@ float snoise(vec2 v) {
   vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
       + i.x + vec3(0.0, i1.x, 1.0 ));
 
-  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.);
   m = m*m ;
   m = m*m ;
   vec3 x = 2.0 * fract(p * C.www) - 1.0;
@@ -55,6 +55,7 @@ uniform float u_wavelength_g;
 uniform float u_wavelength_b;
 uniform float u_color_depth_g;
 uniform float u_color_depth_b;
+uniform float u_light_offset;
 
 varying vec2 vUv;
 varying float vDistortion;
@@ -68,26 +69,26 @@ void main() {
   vec3 c_oy = rgb(238. ,201. ,99.);   // 橘黃
   vec3 bgMain = rgb(u_bgMain.r, u_bgMain.g, u_bgMain.b);
 
-  float noise_b = snoise(vUv * 10. / u_wavelength_b + u_velocity_b * u_time);
-  float noise_g = snoise(vUv * 10. / u_wavelength_g + u_velocity_g * u_time);
+  float noise_b = snoise(vUv * 10. / u_wavelength_b + u_velocity_b * u_time) + u_light_offset;
+  float noise_g = snoise(vUv * 10. / u_wavelength_g + u_velocity_g * u_time) + u_light_offset;
 
   float noise_yg = snoise(vUv * 2. - u_velocity_g / 2. * u_time );
   float noise_oy = snoise(vUv * 10. - u_velocity_g / 5. * u_time );
-  float noise_d = snoise(vUv * 8. + u_velocity_g / 2. * u_time );
+  float noise_w = snoise(vUv * 4. + u_velocity_g / 2. * u_time );
 
   vec3 color = c_w;
-  color = mix(color, c_b, noise_b * u_color_depth_b);
+  color = mix(color, c_b, noise_b * (u_color_depth_b - u_light_offset * .6));
   color = mix(color, c_yg, noise_yg * 1.);
-  color = mix(color, c_g, noise_g * u_color_depth_g);
+  color = mix(color, c_g, noise_g * (u_color_depth_g - u_light_offset * .6));
   color = mix(color, c_oy, noise_oy * .6);
 
-  color = mix(color, c_d, noise_d * .8);
+  color = mix(color, c_w, noise_w * 1.);
   
   color = mix(color, mix(c_b, c_g, vUv.x), vDistortion);
 
   float border = smoothstep(0.1, 0.6, vUv.x);
 
-  color = mix(color, bgMain, 1. -border);
+  color = mix(color, c_d, 1. -border);
 
   gl_FragColor = vec4(color, 1.0);
 }

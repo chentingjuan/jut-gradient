@@ -33,7 +33,7 @@ let y = randomInteger(0, 32)
 class Sketch {
 
   constructor() {
-    this.renderer = new THREE.WebGLRenderer()
+    this.renderer = new THREE.WebGLRenderer({ alpha: true })
     this.renderer.setSize( window.innerWidth, window.innerHeight )
     document.body.appendChild( this.renderer.domElement )
     
@@ -64,11 +64,13 @@ class Sketch {
           u_wavelength_b: {type: 'f', value: this.settings['wavelength (B)']},
           u_color_depth_g: {type: 'f', value: this.settings['color depth (G)']},
           u_color_depth_b: {type: 'f', value: this.settings['color depth (B)']},
+          u_light_offset: {type: 'f', value: 1},
           u_time: {type: 'f', value: 30},
           u_randomisePosition: { type: 'v2', value: randomisePosition }
       },
       fragmentShader: fragment,
       vertexShader: vertex,
+      transparent: true,
     });
 
     this.mesh = new THREE.Mesh(geometry, material);
@@ -87,8 +89,9 @@ class Sketch {
   initSettings = () => {
     this.settings = {
       'bearing': 0,
-      'velocity (G)': 0.15,
-      'velocity (B)': 0.01,
+      'sunlight': false,
+      'velocity (G)': 0.12,
+      'velocity (B)': 0.009,
       'velocity 3': 0.005,
       'wavelength (G)': 2,
       'color depth (G)': 1,
@@ -97,6 +100,7 @@ class Sketch {
 		}
 
     this.gui = new dat.GUI()
+    this.gui.add(this.settings, 'sunlight')
     this.gui.add(this.settings, 'bearing').min(-1 * Math.PI).max(Math.PI)
     this.gui.add(this.settings, 'velocity 3').min(-0.01).max(0.01)
 
@@ -126,6 +130,8 @@ class Sketch {
     this.mesh.material.uniforms.u_wavelength_b.value = this.settings['wavelength (B)']
     this.mesh.material.uniforms.u_color_depth_g.value = this.settings['color depth (G)']
     this.mesh.material.uniforms.u_color_depth_b.value = this.settings['color depth (B)']
+
+    this.mesh.material.uniforms.u_light_offset.value = this.settings['sunlight'] ? 0 : 1
 
     this.mesh.material.uniforms.u_time.value = t;
     if(t % 0.1 == 0) {         
