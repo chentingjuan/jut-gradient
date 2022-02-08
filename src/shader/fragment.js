@@ -49,31 +49,38 @@ uniform vec3 u_bgMain;
 uniform vec3 u_color1;
 uniform vec3 u_color2;
 uniform float u_time;
-uniform float u_velocity_1;
-uniform float u_velocity_2;
-uniform float u_wavelength_1;
-uniform float u_wavelength_2;
+uniform float u_velocity_g;
+uniform float u_velocity_b;
+uniform float u_wavelength_g;
+uniform float u_wavelength_b;
+uniform float u_color_depth_g;
+uniform float u_color_depth_b;
 
 varying vec2 vUv;
 varying float vDistortion;
 
 void main() {
-  vec3 bg = rgb(u_bg.r, u_bg.g, u_bg.b);
-  vec3 c1 = rgb(u_color1.r, u_color1.g, u_color1.b);
-  vec3 c2 = rgb(u_color2.r, u_color2.g, u_color2.b);
-  vec3 c3 = rgb(230., 230. ,230.);
+  vec3 c_w = rgb(230., 230., 230.);   // 灰白
+  vec3 c_b = rgb(55. ,141. ,218.);    // 藍
+  vec3 c_g = rgb(132. ,187. ,65.);    // 綠
+  vec3 c_yg = rgb(219. ,234. ,55.);   // 黃綠
+  vec3 c_oy = rgb(238. ,201. ,99.);   // 橘黃
   vec3 bgMain = rgb(u_bgMain.r, u_bgMain.g, u_bgMain.b);
 
-  float noise1 = snoise(vUv * 10. / u_wavelength_2 + u_velocity_2 * u_time);
-  float noise2 = snoise(vUv * 10. / u_wavelength_1 + u_velocity_1 * u_time);
-  float noise3 = snoise(vUv * 2. + u_velocity_1 / 2. * u_time );
+  float noise_b = snoise(vUv * 10. / u_wavelength_b + u_velocity_b * u_time);
+  float noise_g = snoise(vUv * 10. / u_wavelength_g + u_velocity_g * u_time);
 
-  vec3 color = bg;
-  color = mix(color, c1, noise1 * 0.2);
-  color = mix(color, c2, noise2 * 1.);
-  color = mix(color, c3, noise3 * 1.);
+  float noise_yg = snoise(vUv * 2. - u_velocity_g / 2. * u_time );
+  float noise_oy = snoise(vUv * 10. - u_velocity_g / 5. * u_time );
+  float noise_w = snoise(vUv * 1. + u_velocity_g / 2. * u_time );
 
-  color = mix(color, mix(c1, c2, vUv.x), vDistortion);
+  vec3 color = c_w;
+  color = mix(color, c_b, noise_b * u_color_depth_b);
+  color = mix(color, c_yg, noise_yg * 1.);
+  color = mix(color, c_g, noise_g * u_color_depth_g);
+  color = mix(color, c_oy, noise_oy * .1);
+  
+  color = mix(color, mix(c_b, c_g, vUv.x), vDistortion);
 
   float border = smoothstep(0.1, 0.6, vUv.x);
 

@@ -51,16 +51,19 @@ class Sketch {
     let material = new THREE.ShaderMaterial({
       uniforms: {
           u_bg: {type: 'v3', value: rgb(160, 235, 235)},
+          // u_bg: {type: 'v3', value: rgb(230, 230, 230)},
           // u_bgMain: {type: 'v3', value: rgb(42, 146, 239)}, // 藍
           // u_color1: {type: 'v3', value: rgb(192, 242, 9)}, //率
           // u_color2: {type: 'v3', value: rgb(255, 206, 32)}, //黃
           u_bgMain: {type: 'v3', value: rgb(42,146,239)}, // 藍
-          u_color1: {type: 'v3', value: rgb(255,206,32)}, //率
-          u_color2: {type: 'v3', value: rgb(195,242,9)}, //黃
-          u_velocity_1: {type: 'f', value: this.settings['velocity 1']},
-          u_velocity_2: {type: 'f', value: this.settings['velocity 2']},
-          u_wavelength_1: {type: 'f', value: this.settings['wavelength 1']},
-          u_wavelength_2: {type: 'f', value: this.settings['wavelength 2']},
+          // u_color1: {type: 'v3', value: rgb(255,206,32)}, //率
+          // u_color2: {type: 'v3', value: rgb(195,242,9)}, //黃
+          u_velocity_g: {type: 'f', value: this.settings['velocity (G)']},
+          u_velocity_b: {type: 'f', value: this.settings['velocity (B)']},
+          u_wavelength_g: {type: 'f', value: this.settings['wavelength (G)']},
+          u_wavelength_b: {type: 'f', value: this.settings['wavelength (B)']},
+          u_color_depth_g: {type: 'f', value: this.settings['color depth (G)']},
+          u_color_depth_b: {type: 'f', value: this.settings['color depth (B)']},
           u_time: {type: 'f', value: 30},
           u_randomisePosition: { type: 'v2', value: randomisePosition }
       },
@@ -84,20 +87,30 @@ class Sketch {
   initSettings = () => {
     this.settings = {
       'bearing': 0,
-      'velocity 1': 0.15,
-      'velocity 2': 0.01,
+      'velocity (G)': 0.15,
+      'velocity (B)': 0.01,
       'velocity 3': 0.005,
-      'wavelength 1': 2,
-      'wavelength 2': 8,
+      'wavelength (G)': 2,
+      'color depth (G)': 1,
+      'wavelength (B)': 4,
+      'color depth (B)': .9,
 		}
 
     this.gui = new dat.GUI()
     this.gui.add(this.settings, 'bearing').min(-1 * Math.PI).max(Math.PI)
-    this.gui.add(this.settings, 'velocity 1').min(-0.5).max(0.5)
-    this.gui.add(this.settings, 'velocity 2').min(-0.5).max(0.5)
     this.gui.add(this.settings, 'velocity 3').min(-0.01).max(0.01)
-    this.gui.add(this.settings, 'wavelength 1').min(1).max(10)
-    this.gui.add(this.settings, 'wavelength 2').min(1).max(10)
+
+    const greenFolder = this.gui.addFolder('----- MAIN GREEN -----')
+    greenFolder.open()
+    greenFolder.add(this.settings, 'velocity (G)').min(-0.5).max(0.5)
+    greenFolder.add(this.settings, 'wavelength (G)').min(1).max(6)
+    greenFolder.add(this.settings, 'color depth (G)').min(0.01).max(2)
+
+    const blueFolder = this.gui.addFolder('----- MAIN BLUE -----')
+    blueFolder.open()
+    blueFolder.add(this.settings, 'velocity (B)').min(-0.5).max(0.5)
+    blueFolder.add(this.settings, 'wavelength (B)').min(1).max(6)
+    blueFolder.add(this.settings, 'color depth (B)').min(0.01).max(2)
   }
 
   animate = () => {
@@ -105,12 +118,14 @@ class Sketch {
     this.renderer.render( this.scene, this.camera )
     this.mesh.material.uniforms.u_randomisePosition.value = new THREE.Vector2(j, j);
     
-    this.mesh.material.uniforms.u_color1.value = new THREE.Vector3(R(x,y,t/2), G(x,y,t/2), B(x,y,t/2));
+    // this.mesh.material.uniforms.u_color1.value = new THREE.Vector3(R(x,y,t/2), G(x,y,t/2), B(x,y,t/2));
 
-    this.mesh.material.uniforms.u_velocity_1.value = this.settings['velocity 1']
-    this.mesh.material.uniforms.u_velocity_2.value = this.settings['velocity 2']
-    this.mesh.material.uniforms.u_wavelength_1.value = this.settings['wavelength 1']
-    this.mesh.material.uniforms.u_wavelength_2.value = this.settings['wavelength 2']
+    this.mesh.material.uniforms.u_velocity_g.value = this.settings['velocity (G)']
+    this.mesh.material.uniforms.u_velocity_b.value = this.settings['velocity (B)']
+    this.mesh.material.uniforms.u_wavelength_g.value = this.settings['wavelength (G)']
+    this.mesh.material.uniforms.u_wavelength_b.value = this.settings['wavelength (B)']
+    this.mesh.material.uniforms.u_color_depth_g.value = this.settings['color depth (G)']
+    this.mesh.material.uniforms.u_color_depth_b.value = this.settings['color depth (B)']
 
     this.mesh.material.uniforms.u_time.value = t;
     if(t % 0.1 == 0) {         
