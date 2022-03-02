@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import fragment from './shader/fragment.js'
 import vertex from './shader/vertex.js'
 
-import getFormattedWeather from './getFormattedWeather'
+import { dataRule, getFormattedWeather } from './getFormattedWeather'
 
 import dat from 'dat.gui'
 
@@ -55,12 +55,12 @@ class Sketch {
       let geometry = new THREE.PlaneGeometry(window.innerWidth / 2, 400, 100, 100);
       let material = new THREE.ShaderMaterial({
         uniforms: {
-            u_bg: {type: 'v3', value: rgb(160, 235, 235)},
+            // u_bg: {type: 'v3', value: rgb(160, 235, 235)},
             // u_bg: {type: 'v3', value: rgb(230, 230, 230)},
             // u_bgMain: {type: 'v3', value: rgb(42, 146, 239)}, // 藍
             // u_color1: {type: 'v3', value: rgb(192, 242, 9)}, //率
             // u_color2: {type: 'v3', value: rgb(255, 206, 32)}, //黃
-            u_bgMain: {type: 'v3', value: rgb(42,146,239)}, // 藍
+            // u_bgMain: {type: 'v3', value: rgb(42,146,239)}, // 藍
             // u_color1: {type: 'v3', value: rgb(255,206,32)}, //率
             // u_color2: {type: 'v3', value: rgb(195,242,9)}, //黃
             u_velocity_g: {type: 'f', value: this.settings['velocity (G)']},
@@ -82,7 +82,7 @@ class Sketch {
       this.mesh = new THREE.Mesh(geometry, material);
       // this.mesh.position.set(-200, 270, -280);
       this.mesh.position.set(0, 0, -280);
-      this.mesh.scale.multiplyScalar(2)
+      this.mesh.scale.multiplyScalar(3)
       this.scene.add(this.mesh);
 
       this.renderer.render( this.scene, this.camera );
@@ -133,10 +133,10 @@ class Sketch {
     // blueFolder.add(this.settings, 'wavelength (B)').min(1).max(6)
     // blueFolder.add(this.settings, 'color depth (B)').min(0.4).max(2)
 
-    this.gui.add(this.settings, 'wind deg(deg)').min(0).max(360)
-    this.gui.add(this.settings, 'wind spe(m/s)').min(0).max(15)
-    this.gui.add(this.settings, 'humidity(%)').min(60).max(90)
-    this.gui.add(this.settings, 'temp(°C)').min(15).max(40)
+    this.gui.add(this.settings, 'wind deg(deg)').min(dataRule.wind_deg.min).max(dataRule.wind_deg.max)
+    this.gui.add(this.settings, 'wind spe(m/s)').min(dataRule.wind_speed.min).max(dataRule.wind_speed.max)
+    this.gui.add(this.settings, 'humidity(%)').min(dataRule.humidity.min).max(dataRule.humidity.max)
+    this.gui.add(this.settings, 'temp(°C)').min(dataRule.temp.min).max(dataRule.temp.max)
     this.gui.add(this.settings, 'btr tmro').min(0).max(100)
   }
 
@@ -157,10 +157,10 @@ class Sketch {
 
     // this.mesh.material.uniforms.u_color_depth_g.value = this.settings['color depth (G)']
     // this.mesh.material.uniforms.u_color_depth_b.value = this.settings['color depth (B)']
-    this.mesh.material.uniforms.u_color_depth_g.value = (this.settings['humidity(%)'] - 60) / 60 + .88
-    this.mesh.material.uniforms.u_color_depth_b.value = (this.settings['humidity(%)'] - 60) / 70 + .88
+    this.mesh.material.uniforms.u_color_depth_g.value = (this.settings['humidity(%)'] - dataRule.humidity.min) / 60 + .88
+    this.mesh.material.uniforms.u_color_depth_b.value = (this.settings['humidity(%)'] - dataRule.humidity.min) / 70 + .88
 
-    this.mesh.material.uniforms.u_color_depth_o.value = (this.settings['temp(°C)'] - 15) / (40 - 15)
+    this.mesh.material.uniforms.u_color_depth_o.value = (this.settings['temp(°C)'] - dataRule.temp.min) / (dataRule.temp.max - dataRule.temp.min)
 
     // this.mesh.material.uniforms.u_light_offset.value = this.settings['sunlight'] ? 0 : 1
     this.mesh.material.uniforms.u_light_offset.value = 1 - this.settings['btr tmro'] / 120

@@ -44,8 +44,8 @@ vec3 rgb(float c) {
     return vec3(c / 255., c / 255., c / 255.);
 }
 
-uniform vec3 u_bg;
-uniform vec3 u_bgMain;
+// uniform vec3 u_bg;
+// uniform vec3 u_bgMain;
 uniform vec3 u_color1;
 uniform vec3 u_color2;
 uniform float u_time;
@@ -68,7 +68,7 @@ void main() {
   vec3 c_g = rgb(132. ,187. ,65.);    // 綠
   vec3 c_yg = rgb(219. ,234. ,55.);   // 黃綠
   vec3 c_oy = rgb(238. ,201. ,99.);   // 橘黃
-  vec3 bgMain = rgb(u_bgMain.r, u_bgMain.g, u_bgMain.b);
+  // vec3 bgMain = rgb(u_bgMain.r, u_bgMain.g, u_bgMain.b);
 
   float noise_b = snoise(vUv * 10. / u_wavelength_b + u_velocity_b * u_time) + u_light_offset;
   float noise_g = snoise(vUv * 10. / u_wavelength_g + u_velocity_g * u_time) + u_light_offset;
