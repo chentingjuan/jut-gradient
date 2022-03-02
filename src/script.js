@@ -157,8 +157,8 @@ class Sketch {
 
     // this.mesh.material.uniforms.u_color_depth_g.value = this.settings['color depth (G)']
     // this.mesh.material.uniforms.u_color_depth_b.value = this.settings['color depth (B)']
-    this.mesh.material.uniforms.u_color_depth_g.value = (this.settings['humidity(%)'] - dataRule.humidity.min) / 60 + .88
-    this.mesh.material.uniforms.u_color_depth_b.value = (this.settings['humidity(%)'] - dataRule.humidity.min) / 70 + .88
+    this.mesh.material.uniforms.u_color_depth_g.value = (this.settings['humidity(%)'] - dataRule.humidity.min) / 60 + .9
+    this.mesh.material.uniforms.u_color_depth_b.value = (this.settings['humidity(%)'] - dataRule.humidity.min) / 80 + .9
 
     this.mesh.material.uniforms.u_color_depth_o.value = (this.settings['temp(°C)'] - dataRule.temp.min) / (dataRule.temp.max - dataRule.temp.min)
 
