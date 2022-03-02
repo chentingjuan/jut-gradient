@@ -45,8 +45,8 @@ varying vec2 vUv;
 
 void main() {
     vUv = uv;
-    vDistortion = snoise(vUv.xx * 3. - u_randomisePosition * 0.5);
-    xDistortion = snoise(vUv.yy * 1. - u_randomisePosition * 0.05);
+    vDistortion = snoise(vUv.xx * 3. + u_randomisePosition * 0.5);
+    xDistortion = snoise(vUv.yy * 1. + u_randomisePosition * 0.05);
     vec3 pos = position;
     pos.z += (vDistortion * 30.);
     pos.x += (xDistortion * 15.);
