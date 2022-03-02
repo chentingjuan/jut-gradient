@@ -15,12 +15,12 @@ const dataRule = {
   },
   humidity: {
     min: 60,
-    max: 85,
+    max: 80,
     unit: '%'
   },
   temp: {
     min: 15,
-    max: 40,
+    max: 36,
     unit: '°C'
   }
 }

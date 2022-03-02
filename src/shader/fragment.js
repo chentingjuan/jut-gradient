@@ -74,12 +74,12 @@ void main() {
   float noise_g = snoise(vUv * 10. / u_wavelength_g + u_velocity_g * u_time) + u_light_offset;
 
   float noise_yg = snoise(vUv * 2. - u_velocity_g / 2. * u_time );
-  float noise_oy = snoise(vUv * 3. - u_velocity_g / 5. * u_time );
+  float noise_oy = snoise(vUv * 1. - u_velocity_g / 5. * u_time );
   float noise_w = snoise(vUv * 4. + u_velocity_g / 2. * u_time );
 
   vec3 color = c_w;
   color = mix(color, c_b, noise_b * (u_color_depth_b - u_light_offset * .6));
-  color = mix(color, c_yg, noise_yg * 1.);
+  color = mix(color, c_yg, noise_yg * u_color_depth_o);
   color = mix(color, c_g, noise_g * (u_color_depth_g - u_light_offset * .6));
   color = mix(color, c_oy, noise_oy * u_color_depth_o);
 
