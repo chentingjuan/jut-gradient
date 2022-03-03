@@ -34,6 +34,7 @@ const getFormattedWeather = async () => {
     wind_speed: formatData(rawData.wind.speed, dataRule.wind_speed.min, dataRule.wind_speed.max),
     humidity: formatData(rawData.main.humidity, dataRule.humidity.min, dataRule.humidity.max),
     temp: formatData(rawData.main.temp - 273.15, dataRule.temp.min, dataRule.temp.max),
+    is_raining: rawData.weather.main === 'Rain'
   }
 }
 

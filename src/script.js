@@ -6,6 +6,22 @@ import { dataRule, getFormattedWeather } from './getFormattedWeather'
 
 import dat from 'dat.gui'
 
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
+import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass'
+import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass'
+import { DotScreenPass } from 'three/examples/jsm/postprocessing/DotScreenPass'
+import { MaskPass, ClearMaskPass } from 'three/examples/jsm/postprocessing/MaskPass';
+import { TexturePass } from 'three/examples/jsm/postprocessing/TexturePass'
+
+import { BleachBypassShader } from 'three/examples/jsm/shaders/BleachBypassShader';
+import { SepiaShader } from 'three/examples/jsm/shaders/SepiaShader';
+import { HorizontalBlurShader } from 'three/examples/jsm/shaders/HorizontalBlurShader';
+import { VerticalBlurShader } from 'three/examples/jsm/shaders/VerticalBlurShader';
+import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader'
+import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader'
+
 function randomInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
@@ -32,15 +48,21 @@ let x = randomInteger(0, 32)
 let y = randomInteger(0, 32)
 
 
+const delta = 0.001;
+
 class Sketch {
 
   constructor() {
+    this.width = window.innerWidth
+    this.height = window.innerHeight
     this.renderer = new THREE.WebGLRenderer({ alpha: true })
-    this.renderer.setSize( window.innerWidth, window.innerHeight )
+    this.renderer.setSize(this.width, this.height)
+    this.renderer.setPixelRatio(window.devicePixelRatio)
+    this.renderer.autoClear = false;
     document.body.appendChild( this.renderer.domElement )
     
     this.scene = new THREE.Scene()
-    this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
+    this.camera = new THREE.PerspectiveCamera( 75, this.width / this.height, 0.1, 1000 )
     this.camera.position.z = 5
 
     const setup = async () => {
@@ -85,7 +107,80 @@ class Sketch {
       this.mesh.scale.multiplyScalar(3)
       this.scene.add(this.mesh);
 
-      this.renderer.render( this.scene, this.camera );
+      //////////
+
+      const effectBleach = new ShaderPass( BleachBypassShader );
+      const effectSepia = new ShaderPass( SepiaShader );
+      const effectVignette = new ShaderPass( VignetteShader );
+      const gammaCorrection = new ShaderPass( GammaCorrectionShader );
+
+      effectBleach.uniforms[ 'opacity' ].value = 0.95;
+      effectSepia.uniforms[ 'amount' ].value = 0.9;
+
+      const effectFilm = new FilmPass( 0.1, 0.025, 648, false );
+      const effectFilmBW = new FilmPass( 0.35, 0.5, 2048, true );
+
+      effectVignette.uniforms[ 'offset' ].value = 0.95;
+      effectVignette.uniforms[ 'darkness' ].value = 1.6;
+
+      const effectHBlur = new ShaderPass( HorizontalBlurShader );
+      const effectVBlur = new ShaderPass( VerticalBlurShader );
+      effectHBlur.uniforms[ 'h' ].value = 2 / ( this.width / 2 );
+      effectVBlur.uniforms[ 'v' ].value = 2 / ( this.height / 2 );
+
+      // const effectColorify1 = new ShaderPass( ColorifyShader );
+      // const effectColorify2 = new ShaderPass( ColorifyShader );
+      // effectColorify1.uniforms[ 'color' ] = new THREE.Uniform( new THREE.Color( 1, 0.8, 0.8 ) );
+      // effectColorify2.uniforms[ 'color' ] = new THREE.Uniform( new THREE.Color( 1, 0.75, 0.5 ) );
+
+      const clearMask = new ClearMaskPass();
+      // const renderMask = new MaskPass( sceneModel, cameraPerspective );
+      // const renderMaskInverse = new MaskPass( sceneModel, cameraPerspective );
+
+      // renderMaskInverse.inverse = true;
+
+      const renderBackground = new RenderPass( this.scene, this.camera );
+      // const renderModel = new RenderPass(  this.scene, this.camera );
+
+      // renderModel.clear = false;
+
+      this.composerScene = new EffectComposer( this.renderer, new THREE.WebGLRenderTarget( this.width, this.height, { stencilBuffer: true } ) );
+
+      this.composerScene.addPass( renderBackground );
+      // this.composerScene.addPass( renderModel );
+      // this.composerScene.addPass( renderMaskInverse );
+      this.composerScene.addPass( effectHBlur );
+      this.composerScene.addPass( effectVBlur );
+      // this.composerScene.addPass( clearMask );
+
+
+      this.renderScene = new TexturePass( this.composerScene.renderTarget2.texture );
+
+      //
+
+      this.composer = new EffectComposer( this.renderer, new THREE.WebGLRenderTarget( this.width, this.height, { stencilBuffer: true } ) );
+
+      this.composer.addPass( this.renderScene );
+      // this.composer.addPass( gammaCorrection );
+      // this.composer.addPass( effectFilmBW );
+      // this.composer.addPass( effectVignette );
+
+      //
+
+      // this.composer3 = new EffectComposer( this.renderer, new THREE.WebGLRenderTarget( this.width, this.height, { stencilBuffer: true } ) );
+
+      // this.composer3.addPass( this.renderScene );
+      // this.composer3.addPass( gammaCorrection );
+      this.composer.addPass( effectFilm );
+      // this.composer3.addPass( effectFilm );
+      // this.composer3.addPass( effectVignette );
+
+      this.composerScene.setSize( this.width, this.height );
+
+
+      this.renderScene.uniforms[ 'tDiffuse' ].value = this.composerScene.renderTarget2.texture;
+
+      // this.renderer.render( this.scene, this.camera );
 
       this.animate()
     }
@@ -96,7 +191,8 @@ class Sketch {
     wind_deg,
     wind_speed,
     humidity,
-    temp
+    temp,
+    is_raining
   }) => {
     this.settings = {
       'bearing': 0,
@@ -114,6 +210,10 @@ class Sketch {
       'humidity(%)': humidity, // 60 - 90%
       'temp(°C)': temp, // 15 - 40°C
       'btr tmro': 0, // 0 - 100
+      'whole data': () => {
+        window.open('https://api.openweathermap.org/data/2.5/weather?lat=25.105497&lon=121.597366&appid=e9dcfcd6f8ec64ce20961a75e954fd69', '_blank')
+      },
+      'is raining': is_raining
 		}
 
     this.gui = new dat.GUI()
@@ -137,12 +237,14 @@ class Sketch {
     this.gui.add(this.settings, 'wind spe(m/s)').min(dataRule.wind_speed.min).max(dataRule.wind_speed.max)
     this.gui.add(this.settings, 'humidity(%)').min(dataRule.humidity.min).max(dataRule.humidity.max)
     this.gui.add(this.settings, 'temp(°C)').min(dataRule.temp.min).max(dataRule.temp.max)
+    this.gui.add(this.settings, 'is raining')
     this.gui.add(this.settings, 'btr tmro').min(0).max(100)
+    this.gui.add(this.settings, 'whole data')
   }
 
   animate = () => {
     requestAnimationFrame( this.animate )
-    this.renderer.render( this.scene, this.camera )
+    
     this.mesh.material.uniforms.u_randomisePosition.value = new THREE.Vector2(j, j);
     
     // this.mesh.material.uniforms.u_color1.value = new THREE.Vector3(R(x,y,t/2), G(x,y,t/2), B(x,y,t/2));
@@ -168,22 +270,29 @@ class Sketch {
     this.mesh.material.uniforms.u_time.value = t;
     if(t % 0.1 == 0) {         
       if(this.vCheck == false) {
-          x -= 1;
-          if(x <= 0) {
-              this.vCheck = true;
-          }
+        x -= 1;
+        if(x <= 0) {
+          this.vCheck = true;
+        }
       } else {
-          x += 1;
-          if(x >= 32) {
-              this.vCheck = false;
-          }
-
+        x += 1;
+        if(x >= 32) {
+          this.vCheck = false;
+        }
       }
     }
 
     // this.mesh.rotation.z = this.settings['bearing']
     // this.mesh.rotation.z = (- this.settings['wind deg(deg)'] + 45) * Math.PI/180
-    this.mesh.rotation.z = (- this.settings['wind deg(deg)'] + 90) * Math.PI/180
+    this.mesh.rotation.z = ( - this.settings['wind deg(deg)'] + 90) * Math.PI / 180
+
+
+    // this.renderer.render( this.scene, this.camera )
+    
+    this.composerScene.render( delta );
+
+    this.renderer.setViewport( 0, 0, this.width, this.height );
+    if(this.settings['is raining']) this.composer.render(delta );
 
     // Increase t by a certain value every frame
     // j = j + this.settings['velocity 3'];
